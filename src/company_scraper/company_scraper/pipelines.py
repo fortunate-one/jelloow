@@ -10,4 +10,5 @@ from itemadapter import ItemAdapter
 
 class AgencyPipeline:
     def process_item(self, item, spider):
+        print('\n\n\n\nHello World\n\n\n\n')
         return item
