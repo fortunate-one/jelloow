@@ -19,3 +19,23 @@ Looked into Airflow and Luigi for solutions to use as integration and data pipel
 Reached out to Orel to see if he had any information on collaboration.
 
 ## 09-14-2023
+
+Did more research on scrapy and though about how to utilize NLP within the scrapy framework to create a general purpose website scraper for companies.
+
+## 09-15-2023
+
+worked on LinkedIn API and found that you need to have a current Version. I used Version 202308 and that you need to use 3-legged Oauth. I tried to use the API to get an access token but got the following errors:
+
+```text
+2023-09-15T09:09:18-0600: __main__: ERROR: Error: b'{"error":"access_denied","error_description":"This application is not allowed to create application tokens"}'
+2023-09-15T09:09:18-0600: __main__: ERROR: Error: 401 Unauthorized
+```
+
+This tells me that the permissions and authorizations for the app are not set up correctly. I will need to probably do a de-bug session with Jolien to get the correct permissions and authorizations.
+
+I also got blocked at app permission levels and need to get the correct permissions to be able to get the data we need. See the following error:
+
+```text
+2023-09-15T09:07:04-0600: __main__: ERROR: Error: b'{"status":403,"serviceErrorCode":100,"code":"ACCESS_DENIED","message":"Not enough permissions to access: organizations.FINDER-emailDomain.20230801"}'
+2023-09-15T09:07:04-0600: __main__: ERROR: Error: 403 Forbidden
+```
