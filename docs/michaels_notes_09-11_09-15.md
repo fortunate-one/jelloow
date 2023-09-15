@@ -39,3 +39,7 @@ I also got blocked at app permission levels and need to get the correct permissi
 2023-09-15T09:07:04-0600: __main__: ERROR: Error: b'{"status":403,"serviceErrorCode":100,"code":"ACCESS_DENIED","message":"Not enough permissions to access: organizations.FINDER-emailDomain.20230801"}'
 2023-09-15T09:07:04-0600: __main__: ERROR: Error: 403 Forbidden
 ```
+
+Starting to work on getting some test data together to create a data set of what expected data would look like for agencies after being scraped. This will allow for a smoother development process and clear communication of what is expected and the format. I also think that the data governance is going to be a huge deal because there is multiple sources with probably different or conflicting data that will need to be combined.
+
+Research on scrapy framework implementation
