@@ -1,3 +1,7 @@
+from pathlib import Path
+
+CURRENT_DIR = Path(__file__).parent.absolute()
+
 # Scrapy settings for company_scraper project
 #
 # For simplicity, this file contains only settings considered important or
@@ -91,3 +95,16 @@ ROBOTSTXT_OBEY = True
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+FEEDS = {
+    CURRENT_DIR / 'agency_data.json' : {
+        'format': 'jsonlines',
+        'encoding': 'utf8',
+        'store_empty': False,
+        'fields': None,
+        'indent': 4,
+        'item_export_kwargs': {
+            'export_empty_fields': True,
+        },
+        'export_empty_fields': True,
+    },
+}
