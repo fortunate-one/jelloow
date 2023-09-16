@@ -11,38 +11,37 @@ info@jelloow.com
 '''
 
 import scrapy
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+from urllib.parse import urlparse
+from tils.uri import uri_validator
+
 from company_scraper.items import AgencyItem
 from company_scraper.urls import agency_urls
 
-class AgencySpider(CrawlSpider):
+class AgencySpider(scrapy.Spider):
     name = 'agency'
+    start_urls = agency_urls()
+    visited_urls = set()
 
-    def __init__(self, *args, **kwargs):
-        super(AgencySpider, self).__init__(*args, **kwargs)
-        self.rules = [Rule(LinkExtractor(allow=(agency_url,)), callback='parse_item') for agency_url in agency_urls()]
-        self.start_urls = agency_urls()
+    def parse(self, response):
+        # Add the current URL to the visited set
+        self.visited_urls.add(response.url)
 
-    def parse_item(self, response):
-        # Extract all text data from the web page
-        text_data = self.extract_all_text_from_page(response)
+        # Your parsing logic here...
 
-        # Store the extracted text in a useful format (e.g., in a list)
-        extracted_text = text_data.split()  # Split the text into words
+        # Extract links from the current page
+        anchors = response.selector.xpath('//a/@href').getall()
+        links = [anchor for anchor in anchors if uri_validator(anchor)]
 
-        # You can further process, clean, and format the extracted text as needed for NLP
+        for link in links:
+            
+            # Check if the link is not visited
+            if link not in self.visited_urls:
 
-        # Create an item and yield it
-        item = AgencyItem()
-        item['text_data'] = extracted_text
-        yield item
+                # Check if the link is within the same domain
+                parsed_url = urlparse(link)
+                # TODO: Change this to be the current domain
+                if parsed_url.netloc == 'www.yourwebsite.com':
 
-    def extract_all_text_from_page(self, response):
-        # Extract all text from the web page by selecting all text nodes
-        text_nodes = response.xpath('//text()').extract()
-
-        # Join the extracted text from different nodes into a single string
-        text_data = ' '.join(text_nodes).strip()
-
-        return text_data
+                    # Create an absolute URL if it's a relative link
+                    absolute_url = response.urljoin(link)
+                    yield response.follow(absolute_url, callback=self.parse)
