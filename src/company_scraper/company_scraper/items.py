@@ -31,7 +31,11 @@ class AgencyItem(scrapy.Item):
     internal_operations = scrapy.Field()
     employee_benefits = scrapy.Field()
     intellectual_property = scrapy.Field()
+
     text_data = scrapy.Field()
+
+    goodfirms_rating = scrapy.Field()
+    sortlist_rating = scrapy.Field()
 
 class BrandItem(scrapy.Item):
     pass

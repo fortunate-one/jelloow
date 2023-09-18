@@ -15,6 +15,16 @@ def agency_urls() -> list[str]:
     # currently used for testing purposes
     return ['https://www.jelloow.com']
 
+def agency_goodfirms_names() -> list[str]:
+
+    # currently used for testing purposes
+    return ['webfx', 'smartsites']
+
+def agency_sortlist_names() -> list[str]:
+    
+    # currently used for testing purposes
+    return ['webfx', 'smartsites']
+
 def brand_urls() -> list[str]:
     
     # currently used for testing purposes
