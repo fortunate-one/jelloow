@@ -9,12 +9,21 @@ from itemadapter import ItemAdapter
 from supabase import create_client
 from abc import ABC, abstractmethod
 
+# Utilize pipelines for cleansing, validation, and persistence of data
+
 class SupabasePipeline(ABC):
 
     def __init__(self, url: str, key:str) -> None:
         self.url = url
         self.key = key
         self.table = None
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            url=crawler.settings.get('SUPABASE_URL'),
+            key=crawler.settings.get('SUPABASE_KEY')
+        )
 
     def open_spider(self, spider):
         self.client = create_client(self.url, self.key)
