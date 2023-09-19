@@ -52,11 +52,19 @@ class AgencyPipeline(SupabasePipeline):
     
 class GoodFirmsPipeline(SupabasePipeline):
 
+    def __init__(self, url: str, key: str) -> None:
+        super().__init__(url, key)
+        self.table = 'agency'
+
     def preprocess_item(self, item):
         return ItemAdapter(item).asdict()
 
     
 class SortListPipeline(SupabasePipeline):
+
+    def __init__(self, url: str, key: str) -> None:
+        super().__init__(url, key)
+        self.table = 'agency'
 
     def preprocess_item(self, item):
         return ItemAdapter(item).asdict()
