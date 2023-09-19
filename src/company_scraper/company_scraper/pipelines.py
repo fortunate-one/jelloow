@@ -6,8 +6,57 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from supabase import create_client
+from abc import ABC, abstractmethod
 
+class SupabasePipeline(ABC):
 
-class AgencyPipeline:
+    def __init__(self, url: str, key:str) -> None:
+        self.url = url
+        self.key = key
+        self.table = None
+
+    def open_spider(self, spider):
+        self.client = create_client(self.url, self.key)
+
+    def close_spider(self, spider):
+        self.client.close()
+
+    def send_data(self, data:dict, table:str):
+        table = self.client.table(table)
+        table.insert(data).execute()
+
+    @abstractmethod
+    def preprocess_item(self, item):
+        pass
+
     def process_item(self, item, spider):
+
+        # preprocess data in Item
+        data = self.preprocess_item(item)
+
+        # send data to Supabase
+        self.send_data(data, self.table)
+
         return item
+
+class AgencyPipeline(SupabasePipeline):
+
+    def __init__(self, url: str, key: str) -> None:
+        super().__init__(url, key)
+        self.table = 'agency'
+
+    def preprocess_item(self, item):
+        return ItemAdapter(item).asdict()
+
+    
+class GoodFirmsPipeline(SupabasePipeline):
+
+    def preprocess_item(self, item):
+        return ItemAdapter(item).asdict()
+
+    
+class SortListPipeline(SupabasePipeline):
+
+    def preprocess_item(self, item):
+        return ItemAdapter(item).asdict()
