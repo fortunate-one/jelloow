@@ -37,3 +37,22 @@ Also got initial scraper set up for sortlist website, it is very similar to good
  'sortlist_rating': None,
  'year_founded': None}
 ```
+
+## 09-19-2023
+
+After working with some test data and websites I have the following thoughts, questions and suggestions:
+
+- I think that the data governance is going to be a huge deal because there is multiple sources with probably different or conflicting data that will need to be combined.
+  - To help mitigate this complexity I suggest a non relational "data lake" used to store "operational" data that is then cleaned and cataloged and stored in the relational "data warehouse"
+  - For example the simple `name` field will have multiple different versions and one for each website it is being scraped from. In order to not make duplicates and to have a single source of truth for the `name` field I suggest that the `name` field be stored in the "data lake" and then cleaned and cataloged and stored in the "data warehouse" with a unique id for each company. This will allow for a single source of truth for the `name` field and will allow for the `name` field to be updated if it changes.
+
+- For website scraping I have been making some test code with the scrapy framework. It is very modular and easy to extend and I highly recommend using it. It also has built in pipeline features that are intended to use for persistent storage in databases just like we are doing.
+
+- I am concerned that the general purpose website scraper that gets company information will need
+
+- Where should my focus areas be? (Data understanding, Data pre-processing, Data warehousing, Data modeling, Model evaluation, Model deployment)
+  - API's
+  - Scrapers for non-changing websites
+  - Scrapers for changing websites
+  - Data Cataloging
+  - Data Warehousing
