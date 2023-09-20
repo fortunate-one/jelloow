@@ -56,3 +56,6 @@ After working with some test data and websites I have the following thoughts, qu
   - Scrapers for changing websites
   - Data Cataloging
   - Data Warehousing
+
+## 09-20-2023
+
