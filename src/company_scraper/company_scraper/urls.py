@@ -23,7 +23,7 @@ def agency_goodfirms_names() -> list[str]:
 def agency_sortlist_names() -> list[str]:
     
     # currently used for testing purposes
-    return ['webfx', 'smartsites']
+    return ['webfx', 'smartsites', 'idigitalise-net']
 
 def brand_urls() -> list[str]:
     

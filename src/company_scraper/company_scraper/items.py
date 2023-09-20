@@ -31,11 +31,23 @@ class AgencyItem(scrapy.Item):
     internal_operations = scrapy.Field()
     employee_benefits = scrapy.Field()
     intellectual_property = scrapy.Field()
-
     text_data = scrapy.Field()
 
+class GoodFirmsItem(scrapy.Item):
     goodfirms_rating = scrapy.Field()
+    goodfirms_number_of_ratings = scrapy.Field()
+    name = scrapy.Field()
+    year_founded = scrapy.Field()
+    employee_count = scrapy.Field()
+
+class SortlistItem(scrapy.Item):
     sortlist_rating = scrapy.Field()
+    sortlist_number_of_ratings = scrapy.Field()
+    name = scrapy.Field()
+    year_founded = scrapy.Field()
+    employee_count = scrapy.Field()
+    languages = scrapy.Field()
+    skills = scrapy.Field()
 
 class BrandItem(scrapy.Item):
     pass

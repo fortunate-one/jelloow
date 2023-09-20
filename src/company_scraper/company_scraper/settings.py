@@ -5,8 +5,18 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
+# Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+# MongoDB
+MONGO_INITDB_ROOT_USERNAME=os.environ.get("MONGO_INITDB_ROOT_USERNAME")
+MONGO_INITDB_ROOT_PASSWORD=os.environ.get("MONGO_INITDB_ROOT_PASSWORD")
+MONGO_HOST='localhost'
+MONGO_PORT=os.environ.get("MONGO_PORT")
+MONGO_DB=os.environ.get("MONGO_DB")
+
+MONGO_URI = f"mongodb://{MONGO_INITDB_ROOT_USERNAME}:{MONGO_INITDB_ROOT_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}"
 
 CURRENT_DIR = Path(__file__).parent.absolute()
 
@@ -56,9 +66,9 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-   "company_scraper.middlewares.AgencySpiderMiddleware": 543,
-}
+# SPIDER_MIDDLEWARES = {
+#    "company_scraper.middlewares.AgencySpiderMiddleware": 543,
+# }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -75,7 +85,8 @@ SPIDER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "company_scraper.pipelines.AgencyPipeline": 300,
+   "company_scraper.pipelines.MongoPipeline": 300,
+   "company_scraper.pipelines.CompanyPipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -106,3 +117,4 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 # Logging
 LOG_FILE = CURRENT_DIR / 'company_scraper.log'
+

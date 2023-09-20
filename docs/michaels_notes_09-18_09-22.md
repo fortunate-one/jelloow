@@ -59,3 +59,4 @@ After working with some test data and websites I have the following thoughts, qu
 
 ## 09-20-2023
 
+Added documentation and configuration for local mongo DB for development and added a MongoDB pipeline to use to dump scraped documents into.

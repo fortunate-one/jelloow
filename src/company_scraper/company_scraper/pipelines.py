@@ -6,74 +6,54 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from supabase import create_client
-from abc import ABC, abstractmethod
+from pymongo import MongoClient
 
 # Utilize pipelines for cleansing, validation, and persistence of data
 
-class SupabasePipeline(ABC):
+class MongoPipeline:
+    collection_name = 'scrape_dump'
 
-    def __init__(self, url: str, key:str) -> None:
-        self.url = url
-        self.key = key
-        self.table = None
+    def __init__(self, mongo_uri, mongo_db):
+        self.mongo_uri = mongo_uri
+        self.mongo_db = mongo_db
 
     @classmethod
     def from_crawler(cls, crawler):
+        mongo_uri = crawler.settings.get("MONGO_URI")
         return cls(
-            url=crawler.settings.get('SUPABASE_URL'),
-            key=crawler.settings.get('SUPABASE_KEY')
+            mongo_uri=mongo_uri,
+            mongo_db=crawler.settings.get("MONGO_DB"),
         )
 
     def open_spider(self, spider):
-        self.client = create_client(self.url, self.key)
+        self.client = MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
 
     def close_spider(self, spider):
         self.client.close()
 
-    def send_data(self, data:dict, table:str):
-        table = self.client.table(table)
-        table.insert(data).execute()
-
-    @abstractmethod
-    def preprocess_item(self, item):
-        pass
-
     def process_item(self, item, spider):
-
-        # preprocess data in Item
-        data = self.preprocess_item(item)
-
-        # send data to Supabase
-        self.send_data(data, self.table)
-
+        # persistence
+        self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
         return item
 
-class AgencyPipeline(SupabasePipeline):
+class CompanyPipeline:
 
-    def __init__(self, url: str, key: str) -> None:
-        super().__init__(url, key)
-        self.table = 'agency'
-
-    def preprocess_item(self, item):
-        return ItemAdapter(item).asdict()
-
+    def validate_item(self, item, spider):
+        # validation
+        # checking the accuracy and integrity of data to prevent incorrect or incomplete data from entering a system.
+        # verifying data types, ranges, and relationships within the dataset. Common validation checks include format validation, range validation, and referential integrity checks        
+        return item
     
-class GoodFirmsPipeline(SupabasePipeline):
+    def cleanse_item(self, item, spider):
+        # cleansing
+        # identifying and correcting errors, inconsistencies, and inaccuracies in a dataset 
+        # data deduplication (removing duplicate records), standardization (making data consistent), filling in missing values, and correcting data entry errors (e.g., typos and misspellings). It also includes handling outliers and dealing with inconsistent data formats        
+        return item
 
-    def __init__(self, url: str, key: str) -> None:
-        super().__init__(url, key)
-        self.table = 'agency'
+    def process_item(self, item, spider):
+        
+        item = self.validate_item(item, spider)
+        item = self.cleanse_item(item, spider)
 
-    def preprocess_item(self, item):
-        return ItemAdapter(item).asdict()
-
-    
-class SortListPipeline(SupabasePipeline):
-
-    def __init__(self, url: str, key: str) -> None:
-        super().__init__(url, key)
-        self.table = 'agency'
-
-    def preprocess_item(self, item):
-        return ItemAdapter(item).asdict()
+        return item
