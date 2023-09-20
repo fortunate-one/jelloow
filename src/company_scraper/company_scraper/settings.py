@@ -1,4 +1,12 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 CURRENT_DIR = Path(__file__).parent.absolute()
 
@@ -48,9 +56,9 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
-#    "company_scraper.middlewares.CompanyScraperSpiderMiddleware": 543,
-#}
+SPIDER_MIDDLEWARES = {
+   "company_scraper.middlewares.AgencySpiderMiddleware": 543,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -67,7 +75,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "company_scraper.pipelines.CompanyScraperPipeline": 300,
+   "company_scraper.pipelines.AgencyPipeline": 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -95,3 +103,6 @@ ITEM_PIPELINES = {
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
+# Logging
+LOG_FILE = CURRENT_DIR / 'company_scraper.log'
