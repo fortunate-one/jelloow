@@ -6,3 +6,4 @@ tils
 lxml
 beautifulsoup4
 jelloow-names==0.0.2
+pylint

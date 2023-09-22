@@ -64,3 +64,9 @@ scrapy crawl goodfirms
 ```
 
 To view the data in the MongoDB container, use the web GUI interface by navigating to [http://localhost:8081](http://localhost:8081) in your browser.
+
+## Utilize pyreverse to generate UML diagrams
+
+```bash
+pyreverse ./src/company_scraper/company_scraper/ -d ./docs/pyreverse
+```
