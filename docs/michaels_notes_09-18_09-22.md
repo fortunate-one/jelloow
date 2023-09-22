@@ -72,3 +72,5 @@ I think to alleviate pain in matching and merging separate sources into one "gol
 Added a name module that separates out the names and alias's from creating the urls and makes it easier to update the names and alias's in the future.
 
 I think I am going to need to pull out the urls and name module up higher out of the spiders and into the pipeline so that I can use the same logic for the different api pipelines that don't use the scrapy framework for instance linkedin and crunchbase. Might have to make a package to make it easy to import the name module into the different pipelines.
+
+Added a separate package and deployed to pipy as `jelloow_names` that contains the name module. This will allow for the name module to be used in the different pipelines.
