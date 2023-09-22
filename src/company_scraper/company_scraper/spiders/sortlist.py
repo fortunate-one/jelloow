@@ -12,7 +12,7 @@ info@jelloow.com
 
 import scrapy
 from company_scraper.items import SortlistItem
-from company_scraper.urls import agency_sortlist
+from jelloow_names.urls import agency_sortlist
 
 class SortlistSpider(scrapy.Spider):
     name = 'sortlist'

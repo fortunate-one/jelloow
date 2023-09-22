@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 from tils.uri import uri_validator
 
 from company_scraper.items import AgencyItem
-from company_scraper.urls import agency_websites
+from jelloow_names.urls import agency_websites
 
 class AgencySpider(scrapy.Spider):
     name = 'agency'

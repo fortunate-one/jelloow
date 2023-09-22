@@ -12,7 +12,7 @@ info@jelloow.com
 
 import scrapy
 from company_scraper.items import BrandItem
-from company_scraper.urls import brand_urls
+from jelloow_names.urls import brand_urls
 
 class BrandSpider(scrapy.Spider):
     name = 'brand'

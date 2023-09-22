@@ -60,3 +60,15 @@ After working with some test data and websites I have the following thoughts, qu
 ## 09-20-2023
 
 Added documentation and configuration for local mongo DB for development and added a MongoDB pipeline to use to dump scraped documents into.
+
+## 09-21-2023
+
+Set up meetings with Stijn and worked on fields for scraper
+
+## 09-22-2023
+
+I think to alleviate pain in matching and merging separate sources into one "golden record" having a maintained and curated master list of companies (agencies and brands) and all of their "aliases" that are used in all of the separate sources will make the logic much easier to implement. I think that this should be a separate project that is maintained by the data governance team. This will allow for a single source of truth for the `name` field and will allow for the `name` field to be updated if it changes.
+
+Added a name module that separates out the names and alias's from creating the urls and makes it easier to update the names and alias's in the future.
+
+I think I am going to need to pull out the urls and name module up higher out of the spiders and into the pipeline so that I can use the same logic for the different api pipelines that don't use the scrapy framework for instance linkedin and crunchbase. Might have to make a package to make it easy to import the name module into the different pipelines.
