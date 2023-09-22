@@ -10,20 +10,41 @@ For inquiries or permissions regarding the use of this code, please contact:
 info@jelloow.com
 '''
 
-def agency_urls() -> list[str]:
+# ONLY CHANGE THIS IF A URL IS NO LONGER VALID AND NEEDS TO BE UPDATED. COMPANY NAME CHANGES SHOULD BE DONE IN THE NAMES MODULE
+
+import company_scraper.names as n
+
+def agency_websites() -> list[str]:
     
     # currently used for testing purposes
     return ['https://www.jelloow.com']
 
-def agency_goodfirms_names() -> list[str]:
+def agency_goodfirms() -> list[str]:
+    names = n.agency_names()
+    urls = {}
+    for agency in names:
+        for alias in names[agency]['goodfirms']:
+            urls[f'https://www.goodfirms.co/company/{alias}'] = agency
 
-    # currently used for testing purposes
-    return ['webfx', 'smartsites']
+    return urls
 
-def agency_sortlist_names() -> list[str]:
+def agency_sortlist() -> dict[str, str]:
+    names = n.agency_names()
+    urls = {}
+    for agency in names:
+        for alias in names[agency]['sortlist']:
+            urls[f'https://www.sortlist.com/agency/{alias}'] = agency
     
-    # currently used for testing purposes
-    return ['webfx', 'smartsites', 'idigitalise-net']
+    return urls
+
+def agency_linkedin() -> list[str]:
+    names = n.agency_names()
+    urls = {}
+    for agency in names:
+        for alias in names[agency]['linkedin']:
+            urls[f'https://www.linkedin.com/company/{alias}'] = agency
+
+    return urls
 
 def brand_urls() -> list[str]:
     

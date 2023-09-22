@@ -12,15 +12,16 @@ info@jelloow.com
 
 import scrapy
 from company_scraper.items import GoodFirmsItem
-from company_scraper.urls import agency_goodfirms_names
+from company_scraper.urls import agency_goodfirms
 
 class GoodfirmsSpider(scrapy.Spider):
     name = 'goodfirms'
-    start_urls = [f'https://www.goodfirms.co/company/{name}' for name in agency_goodfirms_names()]
+    agencies = agency_goodfirms()
+    start_urls = list(agencies.keys())
 
     def parse(self, response):
         item = GoodFirmsItem()
-        item['name'] = response.xpath('//h1[@itemprop="name"]/text()').get()
+        item['name'] = self.agencies[response.url] # get the name of the agency from main directory for ease of data governance
         item['goodfirms_rating'] = response.xpath('//span[@itemprop="ratingValue"]/text()').get()
         item['goodfirms_number_of_ratings'] = response.xpath('//span[@itemprop="reviewCount"]/text()').get()
         item['year_founded'] = response.xpath('//div[@data-content="<i>Founded</i>"]/span/text()').get()

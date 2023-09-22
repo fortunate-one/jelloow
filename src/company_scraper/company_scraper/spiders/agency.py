@@ -15,11 +15,11 @@ from urllib.parse import urlparse
 from tils.uri import uri_validator
 
 from company_scraper.items import AgencyItem
-from company_scraper.urls import agency_urls
+from company_scraper.urls import agency_websites
 
 class AgencySpider(scrapy.Spider):
     name = 'agency'
-    start_urls = agency_urls()
+    start_urls = agency_websites()
     visited_urls = set()
 
     def parse(self, response):
