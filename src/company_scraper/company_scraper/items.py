@@ -5,10 +5,32 @@
 
 import scrapy
 
+class BranchesItem(scrapy.Item):
+    agency = scrapy.Field()
+    address = scrapy.Field()
+    city = scrapy.Field()
+
+class ServicesItem(scrapy.Item):
+    agency = scrapy.Field()
+    price_for_project = scrapy.Field()
+    experience_level = scrapy.Field()
+    skills = scrapy.Field()
+    description = scrapy.Field()
+    name = scrapy.Field()
+    average_service_time = scrapy.Field()
+    client_name = scrapy.Field()
+    contact_information = scrapy.Field()
+    list_of_services = scrapy.Field()
+    budget_breakdown = scrapy.Field()
+    return_on_investment = scrapy.Field()
+    client_satisfaction = scrapy.Field()
+
 class AgencyItem(scrapy.Item):
     name = scrapy.Field()
     fte_count = scrapy.Field()
-    branches = scrapy.Field()
+    fte_count_low = scrapy.Field()
+    fte_count_high = scrapy.Field()
+    branches = BranchesItem()
     sub_locations = scrapy.Field()
     year_founded = scrapy.Field()
     email = scrapy.Field()
@@ -22,7 +44,7 @@ class AgencyItem(scrapy.Item):
     agency_ratings = scrapy.Field()
     agency_ratings_count = scrapy.Field()
     awards = scrapy.Field()
-    services = scrapy.Field()
+    services = ServicesItem()
     business_model = scrapy.Field()
     industries = scrapy.Field()
     agency_portfolio_examples = scrapy.Field()
@@ -35,13 +57,11 @@ class AgencyItem(scrapy.Item):
     customer_satisfaction_score = scrapy.Field()
     employee_count = scrapy.Field()
     community_involvement = scrapy.Field()
-    technology_infrastructure = scrapy.Field()
+    technology_infrastructure = scrapy.Field() 
     membership_affiliations = scrapy.Field()
     internal_operations = scrapy.Field()
     employee_benefits = scrapy.Field()
     intellectual_property = scrapy.Field()
-
-    text_data = scrapy.Field()
 
 class SocialItem(scrapy.Item):
     last_activity = scrapy.Field()
@@ -68,30 +88,10 @@ class AwardsItem(scrapy.Item):
     year = scrapy.Field()
     name = scrapy.Field()
 
-class ServicesItem(scrapy.Item):
-    agency = scrapy.Field()
-    price_for_project = scrapy.Field()
-    experience_level = scrapy.Field()
-    skills = scrapy.Field()
-    description = scrapy.Field()
-    name = scrapy.Field()
-    average_service_time = scrapy.Field()
-    client_name = scrapy.Field()
-    contact_information = scrapy.Field()
-    list_of_services = scrapy.Field()
-    budget_breakdown = scrapy.Field()
-    return_on_investment = scrapy.Field()
-    client_satisfaction = scrapy.Field()
-
 class ReviewsItem(scrapy.Item):
     agency = scrapy.Field()
     created_date = scrapy.Field()
     rating = scrapy.Field()
-
-class BranchesItem(scrapy.Item):
-    agency = scrapy.Field()
-    address = scrapy.Field()
-    city = scrapy.Field()
 
 class TargetAudienceItem(scrapy.Item):
     communication = scrapy.Field()
