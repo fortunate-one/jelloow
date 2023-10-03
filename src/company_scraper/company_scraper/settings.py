@@ -36,7 +36,7 @@ NEWSPIDER_MODULE = "company_scraper.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = "company_scraper (+http://www.yourdomain.com)"
+USER_AGENT = "company_scraper (+http://www.yelloow.com)"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -51,6 +51,9 @@ ROBOTSTXT_OBEY = True
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
+
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_DELAY = 0.05
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False

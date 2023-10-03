@@ -22,4 +22,4 @@ Working on understanding fields and how to scrape them
 
 ## 09-29-2023
 
-Talked with Stijn and got some feedback about the fields. Also it looks like the architecture / structure of the scraper looks good and I can continue with it. I am still waiting on credentials to connect to document DB and relational DB. Also, looks like Linked in API is still getting 403 error.
+Talked with Stijn and got some feedback about the fields. Also it looks like the architecture / structure of the scraper looks good and I can continue with it. I am still waiting on credentials to connect to document DB and relational DB. Also, looks like Linked in API is still getting 403 error. I think it is because I am hitting a cloudfare "click to show you are human page" and then it is pinging that request too many time. I will try to use a proxy to get around this.

@@ -30,7 +30,7 @@ class AgencyItem(scrapy.Item):
     fte_count = scrapy.Field()
     fte_count_low = scrapy.Field()
     fte_count_high = scrapy.Field()
-    branches = BranchesItem()
+    location = scrapy.Field()
     sub_locations = scrapy.Field()
     year_founded = scrapy.Field()
     email = scrapy.Field()
