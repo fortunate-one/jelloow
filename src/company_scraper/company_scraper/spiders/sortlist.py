@@ -29,7 +29,17 @@ class SortlistSpider(scrapy.Spider):
         agency['agency_ratings_count'] = response.xpath('/html/body/div/div/div/div/div/div/div/div[2]/div/div[2]/div/div[1]/div/div/a/text()').get()
         agency['year_founded'] = response.xpath('/html/body/div/div/div/div/div/div/div/div[2]/div/div[1]/div[3]/div[5]/span/b/text()').get()
         agency['fte_count'] = response.xpath('/html/body/div/div/div/div/div/div/div/div[2]/div/div[1]/div[3]/a[1]/span/b/text()').get()
-        agency['languages'] = response.xpath('/html/body/div/div/div/div/div/div/div/div[2]/div/div[1]/div[3]/div[1]/span/b/text()').get()
+
+        # get languages from about section
+        about = response.xpath('//div[@id="about"]')
+        for span in about.xpath('//span[@class="m-8 small text-break-word"]'):
+            if span.xpath('//text()').get() == 'Speaks':
+                agency['languages'] = span.xpath('//b/text()').get()
+                break
+
+        # get location from contact section
+        contact = response.xpath('//div[@id="contact"]')
+        agency['location'] = contact.xpath('//span[@class="text-break-word"]/text()').get()
 
         items.append(agency)
         
