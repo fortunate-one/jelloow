@@ -1,6 +1,9 @@
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+from pymongo import MongoClient
+import datetime
+import urllib
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,6 +20,12 @@ MONGO_PORT=os.environ.get("MONGO_PORT")
 MONGO_DB=os.environ.get("MONGO_DB")
 
 MONGO_URI = f"mongodb://{MONGO_INITDB_ROOT_USERNAME}:{MONGO_INITDB_ROOT_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}"
+
+CURRENT_DIR = Path(__file__).parent.absolute()
+
+# Proxy
+PROXY_LIST_FILE = CURRENT_DIR / "proxies.txt"
+CONCURRENT_REQUESTS = 10
 
 CURRENT_DIR = Path(__file__).parent.absolute()
 
@@ -75,9 +84,10 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    "company_scraper.middlewares.CompanyScraperDownloaderMiddleware": 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+   "company_scraper.middlewares.RotateProxyMiddleware": 543,
+   "company_scraper.middlewares.ProxyResponseTimeMiddleware": 900,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

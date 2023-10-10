@@ -7,6 +7,10 @@ from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+import random
+import urllib.request
+import socket
+import time
 
 # used to handle exceptions
 
@@ -102,3 +106,61 @@ class AgencyDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+
+class RotateProxyMiddleware:
+    def __init__(self, proxy_list):
+        # open proxy list file
+        with open(proxy_list) as f:
+            self.proxies = f.readlines()
+        self.proxies = [f'http://{x.strip()}' for x in self.proxies]
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        return cls(proxy_list=crawler.settings.get('PROXY_LIST_FILE'))
+
+    def process_request(self, request, spider):
+        proxy = random.choice(self.proxies)
+
+        # test proxy with urllib
+        # try:
+        #     urllib.request.urlopen(proxy)
+        # except:
+        #     # if error, delete this proxy and recursively get another one
+        #     self.proxies.remove(proxy)
+        #     return self.process_request(request, spider)
+
+        proxy_handler = urllib.request.ProxyHandler({'http': proxy})
+        opener = urllib.request.build_opener(proxy_handler)
+        # Set the timeout for the request
+        socket.setdefaulttimeout(5)
+
+        # time out after 5 seconds and recursively get another one
+        
+
+        try:
+            response = opener.open('https://www.google.com')
+            if response.status == 200:
+                pass
+            else:
+                spider.logger.warning(f'Proxy {proxy} returned response code {response.status}')
+            request.meta['proxy'] = proxy
+            spider.logger.debug(f'Using proxy {proxy}')
+        except urllib.error.URLError as e:
+            self.proxies.remove(proxy)
+            if isinstance(e.reason, socket.timeout):
+                spider.logger.error(f'Proxy {proxy} timed out {e.reason}, removed from proxy list')
+            else:
+                spider.logger.error(f'Proxy {proxy} error {e.reason}, removed from proxy list')
+            return self.process_request(request, spider)
+
+class ProxyResponseTimeMiddleware:
+    def process_request(self, request, spider):
+        request.meta['start_time'] = time.time()
+
+    def process_response(self, request, response, spider):
+        end_time = time.time()
+        response_time = end_time - request.meta['start_time']
+        proxy_used = request.meta.get('proxy')
+        spider.logger.debug(f'Proxy: "{proxy_used}", response time: "{response_time}" seconds')
+
+        return response
