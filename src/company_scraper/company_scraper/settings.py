@@ -23,12 +23,6 @@ MONGO_URI = f"mongodb://{MONGO_INITDB_ROOT_USERNAME}:{MONGO_INITDB_ROOT_PASSWORD
 
 CURRENT_DIR = Path(__file__).parent.absolute()
 
-# Proxy
-PROXY_LIST_FILE = CURRENT_DIR / "proxies.txt"
-CONCURRENT_REQUESTS = 10
-
-CURRENT_DIR = Path(__file__).parent.absolute()
-
 # Scrapy settings for company_scraper project
 #
 # For simplicity, this file contains only settings considered important or
@@ -84,10 +78,21 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-   "company_scraper.middlewares.RotateProxyMiddleware": 543,
-   "company_scraper.middlewares.ProxyResponseTimeMiddleware": 900,
-}
+
+
+# Only use proxies if the proxies.txt file exists
+PROXY_LIST_FILE = CURRENT_DIR / "proxies.txt"
+CONCURRENT_REQUESTS = 10
+
+if PROXY_LIST_FILE.exists():
+   DOWNLOADER_MIDDLEWARES = {
+      "company_scraper.middlewares.RotateProxyMiddleware": 543,
+      "company_scraper.middlewares.ProxyResponseTimeMiddleware": 900,
+   }
+else:
+   DOWNLOADER_MIDDLEWARES = {
+      "company_scraper.middlewares.ProxyResponseTimeMiddleware": 900,
+   }
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

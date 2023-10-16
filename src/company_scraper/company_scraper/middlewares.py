@@ -120,23 +120,13 @@ class RotateProxyMiddleware:
 
     def process_request(self, request, spider):
         proxy = random.choice(self.proxies)
-
-        # test proxy with urllib
-        # try:
-        #     urllib.request.urlopen(proxy)
-        # except:
-        #     # if error, delete this proxy and recursively get another one
-        #     self.proxies.remove(proxy)
-        #     return self.process_request(request, spider)
-
         proxy_handler = urllib.request.ProxyHandler({'http': proxy})
         opener = urllib.request.build_opener(proxy_handler)
+
         # Set the timeout for the request
         socket.setdefaulttimeout(5)
 
         # time out after 5 seconds and recursively get another one
-        
-
         try:
             response = opener.open('https://www.google.com')
             if response.status == 200:
