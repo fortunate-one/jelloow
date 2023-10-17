@@ -5,5 +5,5 @@ python-dotenv
 tils
 lxml
 beautifulsoup4
-jelloow-names==0.0.3
+jelloow-names==0.0.8
 pylint

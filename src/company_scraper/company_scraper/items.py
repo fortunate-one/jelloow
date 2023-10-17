@@ -62,6 +62,10 @@ class AgencyItem(scrapy.Item):
     internal_operations = scrapy.Field()
     employee_benefits = scrapy.Field()
     intellectual_property = scrapy.Field()
+    services = scrapy.Field()
+
+    source = scrapy.Field()
+    url = scrapy.Field()
 
 class SocialItem(scrapy.Item):
     last_activity = scrapy.Field()

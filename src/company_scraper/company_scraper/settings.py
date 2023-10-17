@@ -134,5 +134,7 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
 # Logging
-LOG_FILE = CURRENT_DIR / 'company_scraper.log'
+# create utc iso time stamped log file
+timestamp = datetime.datetime.utcnow().isoformat().replace(':', '-').replace('.', '-')
+LOG_FILE = CURRENT_DIR / f'{timestamp}_{"company_scraper.log"}'
 
