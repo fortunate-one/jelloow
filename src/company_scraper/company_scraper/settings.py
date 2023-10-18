@@ -55,8 +55,8 @@ ROBOTSTXT_OBEY = True
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
-# AUTOTHROTTLE_ENABLED = True
-# AUTOTHROTTLE_DELAY = 0.05
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_DELAY = 1
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -104,7 +104,7 @@ else:
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "company_scraper.pipelines.MongoPipeline": 300,
-   "company_scraper.pipelines.CompanyPipeline": 400,
+   "company_scraper.pipelines.AgencyPipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
