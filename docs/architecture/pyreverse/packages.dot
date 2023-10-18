@@ -1,0 +1,18 @@
+digraph "packages" {
+rankdir=BT
+charset="utf-8"
+"company_scraper" [color="black", label=<company_scraper>, shape="box", style="solid"];
+"company_scraper.items" [color="black", label=<company_scraper.items>, shape="box", style="solid"];
+"company_scraper.middlewares" [color="black", label=<company_scraper.middlewares>, shape="box", style="solid"];
+"company_scraper.pipelines" [color="black", label=<company_scraper.pipelines>, shape="box", style="solid"];
+"company_scraper.settings" [color="black", label=<company_scraper.settings>, shape="box", style="solid"];
+"company_scraper.spiders" [color="black", label=<company_scraper.spiders>, shape="box", style="solid"];
+"company_scraper.spiders.agency" [color="black", label=<company_scraper.spiders.agency>, shape="box", style="solid"];
+"company_scraper.spiders.brand" [color="black", label=<company_scraper.spiders.brand>, shape="box", style="solid"];
+"company_scraper.spiders.goodfirms" [color="black", label=<company_scraper.spiders.goodfirms>, shape="box", style="solid"];
+"company_scraper.spiders.sortlist" [color="black", label=<company_scraper.spiders.sortlist>, shape="box", style="solid"];
+"company_scraper.spiders.agency" -> "company_scraper.items" [arrowhead="open", arrowtail="none"];
+"company_scraper.spiders.brand" -> "company_scraper.items" [arrowhead="open", arrowtail="none"];
+"company_scraper.spiders.goodfirms" -> "company_scraper.items" [arrowhead="open", arrowtail="none"];
+"company_scraper.spiders.sortlist" -> "company_scraper.items" [arrowhead="open", arrowtail="none"];
+}
