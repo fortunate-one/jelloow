@@ -45,12 +45,12 @@ USER_AGENT = "company_scraper (+http://www.yelloow.com)"
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 5
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+# DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -82,17 +82,15 @@ ROBOTSTXT_OBEY = True
 
 # Only use proxies if the proxies.txt file exists
 PROXY_LIST_FILE = CURRENT_DIR / "proxies.txt"
-CONCURRENT_REQUESTS = 10
 
 if PROXY_LIST_FILE.exists():
    DOWNLOADER_MIDDLEWARES = {
-      "company_scraper.middlewares.RotateProxyMiddleware": 543,
-      "company_scraper.middlewares.ProxyResponseTimeMiddleware": 900,
+      "company_scraper.middlewares.TimeLimitMiddleware": 500,
+      "company_scraper.middlewares.RotateProxyMiddleware": 550,
    }
-else:
-   DOWNLOADER_MIDDLEWARES = {
-      "company_scraper.middlewares.ProxyResponseTimeMiddleware": 900,
-   }
+
+# proxy time limit timeout in seconds
+TIME_LIMIT = 10
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

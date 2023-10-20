@@ -113,6 +113,7 @@ class RotateProxyMiddleware:
         with open(proxy_list) as f:
             self.proxies = f.readlines()
         self.proxies = [f'http://{x.strip()}' for x in self.proxies]
+        self.proxy_pool = set()
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -120,6 +121,9 @@ class RotateProxyMiddleware:
 
     def process_request(self, request, spider):
         proxy = random.choice(self.proxies)
+        while proxy in self.proxy_pool:
+            proxy = random.choice(self.proxies)
+        self.proxy_pool.add(proxy)
         proxy_handler = urllib.request.ProxyHandler({'http': proxy})
         opener = urllib.request.build_opener(proxy_handler)
 
@@ -129,9 +133,7 @@ class RotateProxyMiddleware:
         # time out after 5 seconds and recursively get another one
         try:
             response = opener.open('https://www.google.com')
-            if response.status == 200:
-                pass
-            else:
+            if response.status >= 300 or response.status < 200:
                 spider.logger.warning(f'Proxy {proxy} returned response code {response.status}')
             request.meta['proxy'] = proxy
             spider.logger.debug(f'Using proxy {proxy}')
@@ -142,15 +144,43 @@ class RotateProxyMiddleware:
             else:
                 spider.logger.error(f'Proxy {proxy} error {e.reason}, removed from proxy list')
             return self.process_request(request, spider)
+        finally:
+            # remove proxy from proxy pool
+            self.proxy_pool.remove(proxy)
 
-class ProxyResponseTimeMiddleware:
+class TimeLimitMiddleware:
+    def __init__(self, time_limit=10):
+        self.time_limit = time_limit
+        self.request_start_times = {}
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        settings = crawler.settings
+        time_limit = settings.get('TIME_LIMIT', 10)
+        return cls(time_limit)
+
     def process_request(self, request, spider):
-        request.meta['start_time'] = time.time()
+        self.request_start_times[request] = time.time()
 
     def process_response(self, request, response, spider):
-        end_time = time.time()
-        response_time = end_time - request.meta['start_time']
-        proxy_used = request.meta.get('proxy')
-        spider.logger.debug(f'Proxy: "{proxy_used}", response time: "{response_time}" seconds')
-
+        if request in self.request_start_times:
+            del self.request_start_times[request]
         return response
+
+    def process_exception(self, request, exception, spider):
+        if request in self.request_start_times and (time.time() - self.request_start_times[request]) > self.time_limit:
+            del self.request_start_times[request]
+            return self._retry(request, exception, spider)
+
+    def _retry(self, request, reason, spider):
+        retries = request.meta.get('retry_times', 0)
+        max_retries = request.meta.get('max_retries', 3)  # Adjust the max number of retries as needed
+
+        if retries < max_retries:
+            retryreq = request.copy()
+            retryreq.meta['retry_times'] = retries + 1
+            retryreq.dont_filter = True  # Prevent request filtering
+            return retryreq
+        else:
+            spider.logger.error(f"Request exceeded time limit and max retries: {request}")
+            return None

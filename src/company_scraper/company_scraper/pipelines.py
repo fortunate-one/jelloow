@@ -124,9 +124,7 @@ class AgencyPipeline:
                             phone = (phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164))
                         # -------------------------------------------------------------------------#
                         location.update({"phone": phone})
-                        spider.logger.debug(f"location: {location}")
                         validated_item[field] = value
-                        spider.logger.debug(f"value: {value}")
                 case "year_founded":
                     if not value:
                         validated_item[field] = None
@@ -219,5 +217,4 @@ class AgencyPipeline:
         
         validated_item = self.validate_item(item, spider)
         cleansed_item = self.cleanse_item(validated_item, spider)
-        spider.logger.info(f"cleansed_item fte_count: {cleansed_item.get('fte_count')}")
         return cleansed_item
