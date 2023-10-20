@@ -7,3 +7,5 @@ lxml
 beautifulsoup4
 jelloow-names==0.0.8
 pylint
+phonenumbers
+pycountry

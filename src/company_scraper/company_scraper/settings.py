@@ -103,8 +103,8 @@ else:
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "company_scraper.pipelines.MongoPipeline": 300,
-   "company_scraper.pipelines.AgencyPipeline": 400,
+   "company_scraper.pipelines.AgencyPipeline": 300,
+   "company_scraper.pipelines.MongoPipeline": 900,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

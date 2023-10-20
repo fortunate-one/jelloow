@@ -33,23 +33,30 @@ class AgencySpider(scrapy.Spider):
         agency['fte_count'] = response.xpath('//div[@data-content="<i>Employees</i>"]/span/text()').get()
 
         addresses = []
-        for address in response.xpath('//div[@itemprop="address"]'):
-            address_dict = {}
-            address_dict['street_address'] = address.xpath('.//span[@itemprop="streetAddress"]/text()').get()
-            address_dict['country'] = address.xpath('.//div[@itemprop="addressCountry"]/text()').get()
-            address_locality = address.xpath('.//span[@itemprop="addressLocality"]/text()').getall()
-            address_dict['city'] = address_locality[0]
-            address_dict['state'] = address_locality[1]
-            address_dict['zip_code'] = address.xpath('.//span[@itemprop="postalCode"]/text()').get()
-            address_dict['phone'] = address.xpath('.//div[@itemprop="telephone"]/text()').get()
-            addresses.append(address_dict)
-        
-        if len(addresses) > 0:
-            agency['location'] = addresses.pop(0)
+        for address_info in response.xpath('//div[@itemprop="address"]'):
 
-        if len(addresses) > 0:
-            agency['sub_locations'] = addresses
+            # get address information for each location
+            country = address_info.xpath('.//div[@itemprop="addressCountry"]/text()').get()
+            street_address = address_info.xpath('.//span[@itemprop="streetAddress"]/text()').get()
+            address_locality = address_info.xpath('.//span[@itemprop="addressLocality"]/text()').getall()
+            city = address_locality[0] # city
+            state = address_locality[1] # state
+            zip_code = address_info.xpath('.//span[@itemprop="postalCode"]/text()').get()
+            phone = address_info.xpath('.//div[@itemprop="telephone"]/text()').get()
 
+            # create address string and append to addresses list if not already in list
+            address = {
+                'country': country,
+                'street_address': street_address,
+                'city': city,
+                'state': state,
+                'zip_code': zip_code,
+                'phone': phone
+            }
+            if address not in addresses:
+                addresses.append(address)
+
+        agency['locations'] = addresses
         agency['source'] = 'goodfirms'
         agency['url'] = response.url
 
@@ -64,6 +71,7 @@ class AgencySpider(scrapy.Spider):
 
         about_ratings = response.xpath('//div[@id="about"]/div/div[2]/div/div/div/node()')
 
+        # get fte_count, languages, and year founded from about section
         about_info = response.xpath('//div[@id="about"]/div/div[1]/div[3]/node()')
 
         for info in about_info:
@@ -90,12 +98,15 @@ class AgencySpider(scrapy.Spider):
                     pass
                     # agency['award_count'] = text
                 case _ :
-                    self.logger.debug(f'svg type: data-testid = "{svg_type}" with text "{text}"')           
+                    self.logger.error(f'svg type: data-testid = "{svg_type}" with text "{text}"')           
 
         # get location from contact section
         contact = response.xpath('//div[@id="contact"]')
-        agency['location'] = contact.xpath('.//span[@class="text-break-word"]/text()').get()
+        location_str = contact.xpath('.//span[@class="text-break-word"]/text()').get()
 
+        agency['locations'] = []
+
+        # get services from services section
         services_info = response.xpath('//div[@id="services"]/div[2]/ul/node()')
 
         services = []

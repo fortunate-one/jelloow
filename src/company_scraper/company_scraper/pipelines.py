@@ -7,6 +7,14 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from pymongo import MongoClient
+from scrapy.exceptions import DropItem
+from company_scraper.items import AgencyItem
+from jelloow_names import names as n
+import re
+import phonenumbers
+import pycountry
+
+DEFAULT_PHONE_REGION = "US"
 
 # Utilize pipelines for cleansing, validation, and persistence of data
 
@@ -42,8 +50,164 @@ class AgencyPipeline:
     def validate_item(self, item, spider):
         # validation
         # checking the accuracy and integrity of data to prevent incorrect or incomplete data from entering a system.
-        # verifying data types, ranges, and relationships within the dataset. Common validation checks include format validation, range validation, and referential integrity checks        
-        return item
+        # verifying data types, ranges, and relationships within the dataset. Common validation checks include format validation, range validation, and referential integrity checks
+
+        # check that the item is an AgencyItem
+        if not isinstance(item, AgencyItem):
+            raise DropItem("Item is not an AgencyItem")
+        
+        # create a separate validated item to return
+        validated_item = AgencyItem()
+
+        # for each field, validate the field based on AgencyItem validation rules
+        for field, value in ItemAdapter(item).asdict().items():
+
+            match field:
+                case "name": 
+                    if value in n.agency_names().keys():
+                        validated_item[field] = value
+                    else:
+                        raise DropItem(f"Invalid name: {value!r} not found in agency names")
+
+                case "fte_count":
+
+                    if not value:
+                        validated_item[field] = None
+                        break
+
+                    # get all numeric values from the string to include commas and periods (periods for international numbers)
+                    numeric_values = [re.sub(r'[,.]', '', x) for x in re.findall(r'\d+[.,]*\d*', value)]
+
+                    # if range then put high and low into fte_count_low else put value into fte_count
+                    if len(numeric_values) == 1:
+                        validated_item[field] = int(numeric_values[0])
+                    elif len(numeric_values) == 2:
+                        validated_item["fte_count_low"] = int(numeric_values[0])
+                        validated_item["fte_count_high"] = int(numeric_values[1])
+                    else:
+                        raise DropItem(f"Invalid fte_count: {value!r} found more than 2 numeric values")
+
+                case "fte_count_low": # numeric - if not range then put fte_count into fte_count and remove fte_count_low and fte_count_high
+                    pass
+                case "fte_count_high": # numeric
+                    pass
+                case "locations": # string, format
+                    # TODO: add validation for address format
+
+                    for location in value:
+                        phone = location.get("phone")
+
+                        # TODO: move this phone validation to a utility function
+                        # -------------------------------------------------------------------------#
+                        # TODO: add more characters to strip
+                        # TODO: fix hong kong phone numbers country code 852, 853, 886, 91
+                        phone = phone.encode().decode('utf-8').strip() if phone else None
+                        phone = re.sub(r'[^\d]', '', phone) if phone else None
+                        country = location.get("country").strip() or DEFAULT_PHONE_REGION
+
+                        # if no phone then set to None
+                        if phone:
+                            validated_item[field] = None
+
+                            # change to ISO 3166-1 alpha-2 country code
+                            region = pycountry.countries.search_fuzzy(country)[0].alpha_2
+                            phone_debug = phone
+                            # parse the phone number
+                            phone = phonenumbers.parse(phone, region)
+
+                            # check that the phone number is valid
+                            if not phonenumbers.is_valid_number(phone):
+                                # TODO: figure out how ot handle an invalid field
+                                raise DropItem(f"Invalid phone number: {phone}, phone: {phone_debug}, country: {country}, region: {region}")
+                            
+                            # change the phone number to E164 format
+                            phone = (phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164))
+                        # -------------------------------------------------------------------------#
+                        location.update({"phone": phone})
+                        spider.logger.debug(f"location: {location}")
+                        validated_item[field] = value
+                        spider.logger.debug(f"value: {value}")
+                case "year_founded":
+                    if not value:
+                        validated_item[field] = None
+                        break
+
+                    numeric_values = re.findall(r'\d+', value)
+
+                    if len(numeric_values) == 1:
+                        if len(numeric_values[0]) == 4:
+                            validated_item[field] = int(numeric_values[0])
+                        else:
+                            raise DropItem(f"Invalid year_founded: {value!r} found 1 numeric value but not 4 digits")
+                    else:
+                        raise DropItem(f"Invalid year_founded: {value!r} found more than 1 numeric value")
+
+                case "email":
+                    pass
+                case "languages":
+                    pass
+                case "members":
+                    pass
+                case "revenue_last_year":
+                    pass
+                case "revenue_previous_year":
+                    pass
+                case "capital_raised":
+                    pass
+                case "when_capital_raised":
+                    pass
+                case "agency_ratings":
+                    pass
+                case "agency_ratings_count":
+                    pass
+                case "awards":
+                    pass
+                case "services":
+                    pass
+                case "business_model":
+                    pass
+                case "industries":
+                    pass
+                case "agency_portfolio_examples":
+                    pass
+                case "regions":
+                    pass
+                case "subscription_plans":
+                    pass
+                case "contacts":
+                    pass
+                case "segments":
+                    pass
+                case "clients":
+                    pass
+                case "ceo":
+                    pass
+                case "customer_satisfaction_score":
+                    pass
+                case "employee_count":
+                    pass
+                case "community_involvement":
+                    pass
+                case "technology_infrastructure":
+                    pass
+                case "membership_affiliations":
+                    pass
+                case "internal_operations":
+                    pass
+                case "employee_benefits":
+                    pass
+                case "intellectual_property":
+                    pass
+                case "services":
+                    pass
+                case "source":
+                    validated_item[field] = value
+                case "url":
+                    validated_item[field] = value
+                case _:
+                    raise DropItem(f"Unknown field: {field!r}")
+
+        return validated_item
     
     def cleanse_item(self, item, spider):
         # cleansing
@@ -53,7 +217,7 @@ class AgencyPipeline:
 
     def process_item(self, item, spider):
         
-        item = self.validate_item(item, spider)
-        item = self.cleanse_item(item, spider)
-
-        return item
+        validated_item = self.validate_item(item, spider)
+        cleansed_item = self.cleanse_item(validated_item, spider)
+        spider.logger.info(f"cleansed_item fte_count: {cleansed_item.get('fte_count')}")
+        return cleansed_item
