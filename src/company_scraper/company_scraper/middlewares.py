@@ -7,10 +7,6 @@ from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
-import random
-import urllib.request
-import socket
-import time
 
 # used to handle exceptions
 
