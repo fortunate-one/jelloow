@@ -24,9 +24,13 @@ class AgencySpider(scrapy.Spider):
     start_urls = agencies.keys()
     visited_urls = set()
 
+    def linked_in_parse(self, response: Response) -> AgencyItem:
+        agency = AgencyItem()
+        agency['name'] = self.agencies[response.url]
+
     def goodfirms_parse(self, response: Response) -> AgencyItem:
         agency = AgencyItem()
-        agency['name'] = self.agencies[response.url] # get the name of the agency from main directory for ease of data governance
+        agency['name'] = self.agencies[response.url]
         agency['agency_ratings'] = response.xpath('//span[@itemprop="ratingValue"]/text()').get()
         agency['agency_ratings_count'] = response.xpath('//span[@itemprop="reviewCount"]/text()').get()
         agency['year_founded'] = response.xpath('//div[@data-content="<i>Founded</i>"]/span/text()').get()
@@ -65,11 +69,10 @@ class AgencySpider(scrapy.Spider):
     def sortlist_parse(self, response: Response) -> AgencyItem:
 
         agency = AgencyItem()
-        agency['name'] = self.agencies[response.url] # get the name of the agency from main directory for ease of data governance
-        agency['agency_ratings'] = response.xpath('/html/body/div/div/div/div/div/div/div/div[2]/div/div[2]/div/div[1]/div/span/span[1]/text()').get()
-        agency['agency_ratings_count'] = response.xpath('/html/body/div/div/div/div/div/div/div/div[2]/div/div[2]/div/div[1]/div/div/a/text()').get()
-
+        agency['name'] = self.agencies[response.url]
         about_ratings = response.xpath('//div[@id="about"]/div/div[2]/div/div/div/node()')
+        agency['agency_ratings'] = about_ratings[0].xpath('.//text()').get()
+        agency['agency_ratings_count'] = about_ratings[1].xpath('.//text()').get()
 
         # get fte_count, languages, and year founded from about section
         about_info = response.xpath('//div[@id="about"]/div/div[1]/div[3]/node()')
@@ -103,8 +106,7 @@ class AgencySpider(scrapy.Spider):
         # get location from contact section
         contact = response.xpath('//div[@id="contact"]')
         location_str = contact.xpath('.//span[@class="text-break-word"]/text()').get()
-
-        agency['locations'] = []
+        agency['locations'] = [location_str]
 
         # get services from services section
         services_info = response.xpath('//div[@id="services"]/div[2]/ul/node()')
@@ -144,11 +146,16 @@ class AgencySpider(scrapy.Spider):
         # Add the current URL to the visited set
         self.visited_urls.add(response.url)
 
-        # Your parsing logic here...
+        # parsing logic start here
+
+        # parsing logic end here
 
         # Extract links from the current page
         anchors = response.selector.xpath('//a/@href').getall()
         links = [anchor for anchor in anchors if uri_validator(anchor)]
+
+        # get the domain from the current url
+        domain = urlparse(response.url).netloc
 
         for link in links:
             
@@ -157,14 +164,11 @@ class AgencySpider(scrapy.Spider):
 
                 # Check if the link is within the same domain
                 parsed_url = urlparse(link)
-                # TODO: Change this to be the current domain
-                if parsed_url.netloc == 'www.yourwebsite.com':
+                if parsed_url.netloc == domain:
 
                     # Create an absolute URL if it's a relative link
                     absolute_url = response.urljoin(link)
                     yield response.follow(absolute_url, callback=self.parse)
-
-        return response
 
     def parse(self, response: Response) -> AgencyItem:
 
@@ -172,6 +176,7 @@ class AgencySpider(scrapy.Spider):
             return self.goodfirms_parse(response)
         elif 'sortlist' in response.url:
             return self.sortlist_parse(response)
+        
         else:
             pass
-            # yield self.website_parse(response)
+            # return self.website_parse(response)
