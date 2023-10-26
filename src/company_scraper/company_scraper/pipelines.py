@@ -205,6 +205,8 @@ class AgencyPipeline:
                     validated_item[field] = value
                 case "url":
                     validated_item[field] = value
+                case "text":
+                    validated_item[field] = value
                 case _:
                     raise DropItem(f"Unknown field: {field!r}")
 

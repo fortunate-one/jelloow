@@ -66,6 +66,8 @@ class AgencyItem(scrapy.Item):
     source = scrapy.Field()
     url = scrapy.Field()
 
+    text = scrapy.Field()
+
 class SocialItem(scrapy.Item):
     last_activity = scrapy.Field()
     posts = scrapy.Field()

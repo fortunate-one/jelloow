@@ -11,8 +11,8 @@ info@jelloow.com
 '''
 
 import scrapy
-from scrapy.crawler import CrawlerProcess
-from scrapy.utils.project import get_project_settings
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 from urllib.parse import urlparse
 from scrapy.http import Response
 from company_scraper.items import AgencyItem
@@ -176,12 +176,14 @@ class GoodfirmsSpider(scrapy.Spider):
 
         yield agency
 
-class WebsiteSpider(scrapy.spiders.CrawlSpider):
+class WebsiteSpider(CrawlSpider):
 
     name = 'website'
     rules = (
-        scrapy.spiders.Rule(scrapy.linkextractors.LinkExtractor(allow=(), unique=True), callback='parse_item'),
+        Rule(LinkExtractor(allow=(), unique=True), callback='parse'),
     )
+    agency_name = None
+    urls = {}
 
     def start_requests(self):
 
@@ -192,16 +194,22 @@ class WebsiteSpider(scrapy.spiders.CrawlSpider):
                 urls[url] = name
 
         start_urls = urls.keys()
+        self.urls = urls
 
         for url in start_urls:
             yield scrapy.Request(url, callback=self.parse, meta={'allowed_domains': [urlparse(url).netloc]})
 
-    def parse_item(self, response: Response):
+    def parse(self, response: Response):
+
+        if response.url in self.urls:
+            self.agency_name = self.urls[response.url]
 
         # Extract text from the current page
-        Agency = AgencyItem()
+        agency = AgencyItem()
         # TODO: update this to get the name
-        Agency['name'] = None
-        Agency['url'] = response.url
-        Agency['source'] = 'website'
-        Agency['text'] = response.xpath('//text()').getall()
+        agency['name'] = self.agency_name
+        agency['url'] = response.url
+        agency['source'] = 'website'
+        agency['text'] = ' '.join(response.xpath('//text()').getall())
+
+        yield agency
