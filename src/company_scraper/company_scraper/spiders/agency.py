@@ -11,65 +11,50 @@ info@jelloow.com
 '''
 
 import scrapy
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
 from urllib.parse import urlparse
 from scrapy.http import Response
-from tils.uri import uri_validator
-
 from company_scraper.items import AgencyItem
-from jelloow_names.urls import agency_urls
+from company_scraper import AGENCY_INFO
 
-class AgencySpider(scrapy.Spider):
-    name = 'agency'
-    agencies = agency_urls()
-    start_urls = agencies.keys()
-    visited_urls = set()
+def uri_validator(uri: str) -> bool:
+    """Validates if a given string is a valid URI.
 
-    def linked_in_parse(self, response: Response) -> AgencyItem:
-        agency = AgencyItem()
-        agency['name'] = self.agencies[response.url]
+    Args:
+        uri (str): URI to be validated.
 
-    def goodfirms_parse(self, response: Response) -> AgencyItem:
-        agency = AgencyItem()
-        agency['name'] = self.agencies[response.url]
-        agency['agency_ratings'] = response.xpath('//span[@itemprop="ratingValue"]/text()').get()
-        agency['agency_ratings_count'] = response.xpath('//span[@itemprop="reviewCount"]/text()').get()
-        agency['year_founded'] = response.xpath('//div[@data-content="<i>Founded</i>"]/span/text()').get()
-        agency['fte_count'] = response.xpath('//div[@data-content="<i>Employees</i>"]/span/text()').get()
+    Returns:
+        bool: True if the URI is valid, False otherwise.
+    """
+    # convert to string if not already
+    if not isinstance(uri, str):
+        uri = str(uri)
 
-        addresses = []
-        for address_info in response.xpath('//div[@itemprop="address"]'):
+    # validate URI
+    try:
+        result = urlparse(uri)
+        return all([result.scheme, result.netloc])
+    except:
+        return False
 
-            # get address information for each location
-            country = address_info.xpath('.//div[@itemprop="addressCountry"]/text()').get()
-            street_address = address_info.xpath('.//span[@itemprop="streetAddress"]/text()').get()
-            address_locality = address_info.xpath('.//span[@itemprop="addressLocality"]/text()').getall()
-            city = address_locality[0] # city
-            state = address_locality[1] # state
-            zip_code = address_info.xpath('.//span[@itemprop="postalCode"]/text()').get()
-            phone = address_info.xpath('.//div[@itemprop="telephone"]/text()').get()
+class WebsiteSpider(scrapy.Spider):
+    pass
 
-            # create address string and append to addresses list if not already in list
-            address = {
-                'country': country,
-                'street_address': street_address,
-                'city': city,
-                'state': state,
-                'zip_code': zip_code,
-                'phone': phone
-            }
-            if address not in addresses:
-                addresses.append(address)
+class SortlistSpider(scrapy.Spider):
+    urls = {}
+    for name, info in AGENCY_INFO.items():
+        sortlist_urls = info.get('source_urls').get('sortlist')
+        for url in sortlist_urls:
+            urls[url] = name
 
-        agency['locations'] = addresses
-        agency['source'] = 'goodfirms'
-        agency['url'] = response.url
+    start_urls = urls.keys()
+    name = 'sortlist'
 
-        yield agency
-
-    def sortlist_parse(self, response: Response) -> AgencyItem:
+    def parse(self, response: Response) -> AgencyItem:
 
         agency = AgencyItem()
-        agency['name'] = self.agencies[response.url]
+        agency['name'] = self.urls[response.url]
         about_ratings = response.xpath('//div[@id="about"]/div/div[2]/div/div/div/node()')
         agency['agency_ratings'] = about_ratings[0].xpath('.//text()').get()
         agency['agency_ratings_count'] = about_ratings[1].xpath('.//text()').get()
@@ -142,41 +127,81 @@ class AgencySpider(scrapy.Spider):
 
         yield agency
 
-    def website_parse(self, response: Response):
-        # Add the current URL to the visited set
-        self.visited_urls.add(response.url)
+class GoodfirmsSpider(scrapy.Spider):
 
-        # parsing logic start here
+    urls = {}
+    for name, info in AGENCY_INFO.items():
+        goodfirms_urls = info.get('source_urls').get('goodfirms')
+        for url in goodfirms_urls:
+            urls[url] = name
 
-        # parsing logic end here
-
-        # Extract links from the current page
-        anchors = response.selector.xpath('//a/@href').getall()
-        links = [anchor for anchor in anchors if uri_validator(anchor)]
-
-        # get the domain from the current url
-        domain = urlparse(response.url).netloc
-
-        for link in links:
-            
-            # Check if the link is not visited
-            if link not in self.visited_urls:
-
-                # Check if the link is within the same domain
-                parsed_url = urlparse(link)
-                if parsed_url.netloc == domain:
-
-                    # Create an absolute URL if it's a relative link
-                    absolute_url = response.urljoin(link)
-                    yield response.follow(absolute_url, callback=self.parse)
+    start_urls = urls.keys()
+    name = 'goodfirms'
 
     def parse(self, response: Response) -> AgencyItem:
+        agency = AgencyItem()
+        agency['name'] = self.urls[response.url]
+        agency['agency_ratings'] = response.xpath('//span[@itemprop="ratingValue"]/text()').get()
+        agency['agency_ratings_count'] = response.xpath('//span[@itemprop="reviewCount"]/text()').get()
+        agency['year_founded'] = response.xpath('//div[@data-content="<i>Founded</i>"]/span/text()').get()
+        agency['fte_count'] = response.xpath('//div[@data-content="<i>Employees</i>"]/span/text()').get()
 
-        if 'goodfirms' in response.url:
-            return self.goodfirms_parse(response)
-        elif 'sortlist' in response.url:
-            return self.sortlist_parse(response)
-        
-        else:
-            pass
-            # return self.website_parse(response)
+        addresses = []
+        for address_info in response.xpath('//div[@itemprop="address"]'):
+
+            # get address information for each location
+            country = address_info.xpath('.//div[@itemprop="addressCountry"]/text()').get()
+            street_address = address_info.xpath('.//span[@itemprop="streetAddress"]/text()').get()
+            address_locality = address_info.xpath('.//span[@itemprop="addressLocality"]/text()').getall()
+            city = address_locality[0] # city
+            state = address_locality[1] # state
+            zip_code = address_info.xpath('.//span[@itemprop="postalCode"]/text()').get()
+            phone = address_info.xpath('.//div[@itemprop="telephone"]/text()').get()
+
+            # create address string and append to addresses list if not already in list
+            address = {
+                'country': country,
+                'street_address': street_address,
+                'city': city,
+                'state': state,
+                'zip_code': zip_code,
+                'phone': phone
+            }
+            if address not in addresses:
+                addresses.append(address)
+
+        agency['locations'] = addresses
+        agency['source'] = 'goodfirms'
+        agency['url'] = response.url
+
+        yield agency
+
+class WebsiteSpider(scrapy.spiders.CrawlSpider):
+
+    name = 'website'
+    rules = (
+        scrapy.spiders.Rule(scrapy.linkextractors.LinkExtractor(allow=(), unique=True), callback='parse_item'),
+    )
+
+    def start_requests(self):
+
+        urls = {}
+        for name, info in AGENCY_INFO.items():
+            website_urls = info.get('source_urls').get('website')
+            for url in website_urls:
+                urls[url] = name
+
+        start_urls = urls.keys()
+
+        for url in start_urls:
+            yield scrapy.Request(url, callback=self.parse, meta={'allowed_domains': [urlparse(url).netloc]})
+
+    def parse_item(self, response: Response):
+
+        # Extract text from the current page
+        Agency = AgencyItem()
+        # TODO: update this to get the name
+        Agency['name'] = None
+        Agency['url'] = response.url
+        Agency['source'] = 'website'
+        Agency['text'] = response.xpath('//text()').getall()

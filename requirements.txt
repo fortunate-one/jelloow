@@ -3,10 +3,10 @@ scrapy-rotating-proxies
 supabase
 pymongo
 python-dotenv
-tils
 lxml
 beautifulsoup4
 jelloow-names==0.0.9
 pylint
 phonenumbers
 pycountry
+-e .

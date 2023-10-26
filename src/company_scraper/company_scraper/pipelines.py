@@ -92,39 +92,42 @@ class AgencyPipeline:
                 case "fte_count_high": # numeric
                     pass
                 case "locations": # string, format
-                    # TODO: add validation for address format
-
+                    
                     for location in value:
-                        phone = location.get("phone")
+                        if isinstance(location, str):
+                            # TODO: add validation for address format on strings
+                            validated_item[field] = value
+                        elif isinstance(location, dict):
+                            phone = location.get("phone")
 
-                        # TODO: move this phone validation to a utility function
-                        # -------------------------------------------------------------------------#
-                        # TODO: add more characters to strip
-                        # TODO: fix hong kong phone numbers country code 852, 853, 886, 91
-                        phone = phone.encode().decode('utf-8').strip() if phone else None
-                        phone = re.sub(r'[^\d]', '', phone) if phone else None
-                        country = location.get("country").strip() or DEFAULT_PHONE_REGION
+                            # TODO: move this phone validation to a utility function
+                            # -------------------------------------------------------------------------#
+                            # TODO: add more characters to strip
+                            # TODO: fix hong kong phone numbers country code 852, 853, 886, 91
+                            phone = phone.encode().decode('utf-8').strip() if phone else None
+                            phone = re.sub(r'[^\d]', '', phone) if phone else None
+                            country = location.get("country").strip() or DEFAULT_PHONE_REGION
 
-                        # if no phone then set to None
-                        if phone:
-                            validated_item[field] = None
+                            # if no phone then set to None
+                            if phone:
+                                validated_item[field] = None
 
-                            # change to ISO 3166-1 alpha-2 country code
-                            region = pycountry.countries.search_fuzzy(country)[0].alpha_2
-                            phone_debug = phone
-                            # parse the phone number
-                            phone = phonenumbers.parse(phone, region)
+                                # change to ISO 3166-1 alpha-2 country code
+                                region = pycountry.countries.search_fuzzy(country)[0].alpha_2
+                                phone_debug = phone
+                                # parse the phone number
+                                phone = phonenumbers.parse(phone, region)
 
-                            # check that the phone number is valid
-                            if not phonenumbers.is_valid_number(phone):
-                                # TODO: figure out how ot handle an invalid field
-                                raise DropItem(f"Invalid phone number: {phone}, phone: {phone_debug}, country: {country}, region: {region}")
-                            
-                            # change the phone number to E164 format
-                            phone = (phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164))
-                        # -------------------------------------------------------------------------#
-                        location.update({"phone": phone})
-                        validated_item[field] = value
+                                # check that the phone number is valid
+                                if not phonenumbers.is_valid_number(phone):
+                                    # TODO: figure out how ot handle an invalid field
+                                    raise DropItem(f"Invalid phone number: {phone}, phone: {phone_debug}, country: {country}, region: {region}")
+                                
+                                # change the phone number to E164 format
+                                phone = (phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164))
+                            # -------------------------------------------------------------------------#
+                            location.update({"phone": phone})
+                            validated_item[field] = value
                 case "year_founded":
                     if not value:
                         validated_item[field] = None
