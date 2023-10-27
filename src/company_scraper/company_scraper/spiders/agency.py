@@ -178,37 +178,26 @@ class GoodfirmsSpider(scrapy.Spider):
 
 class WebsiteSpider(CrawlSpider):
 
-    name = 'website'
-    rules = (
-        Rule(LinkExtractor(allow=(), unique=True), callback='parse_page'),
-    )
-    agency_name = None
     urls = {}
+    for name, info in AGENCY_INFO.items():
+        website_urls = info.get('source_urls', {}).get('website')
+        for url in website_urls:
+            urls[url] = name
 
-    def start_requests(self):
+    start_urls = urls.keys()
+    allowed_domains = [urlparse(url).netloc for url in start_urls]
+    name = "website"
 
-        urls = {}
-        for name, info in AGENCY_INFO.items():
-            website_urls = info.get('source_urls').get('website')
-            for url in website_urls:
-                urls[url] = name
+    rules = (
+        Rule(LinkExtractor(allow=(), unique=True), callback="parse_item"),
+    )
 
-        start_urls = urls.keys()
-        self.urls = urls
-
-        for url in start_urls:
-            yield scrapy.Request(url, callback=self.parse_page, meta={'allowed_domains': [urlparse(url).netloc]})
-
-    def parse_page(self, response: Response):
-
-        if response.url in self.urls:
-            self.agency_name = self.urls[response.url]
-
-        # Extract text from the current page
+    def parse_item(self, response):
+    
         agency = AgencyItem()
-        agency['name'] = self.agency_name
+        agency['text'] = ' '.join(response.xpath('//text()').getall())
         agency['url'] = response.url
         agency['source'] = 'website'
-        agency['text'] = ' '.join(response.xpath('//body/text()').getall())
+        agency['name'] = None
 
-        yield agency
+        return agency

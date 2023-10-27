@@ -9,6 +9,7 @@ from itemadapter import ItemAdapter
 from pymongo import MongoClient
 from scrapy.exceptions import DropItem
 from company_scraper.items import AgencyItem
+from company_scraper import AGENCY_INFO
 from jelloow_names import names as n
 import re
 import phonenumbers
@@ -64,7 +65,7 @@ class AgencyPipeline:
 
             match field:
                 case "name": 
-                    if value in n.agency_names().keys():
+                    if value in AGENCY_INFO.keys():
                         validated_item[field] = value
                     else:
                         raise DropItem(f"Invalid name: {value!r} not found in agency names")

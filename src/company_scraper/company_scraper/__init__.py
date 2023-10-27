@@ -311,6 +311,16 @@ agency_info = {
         'aliases' : ['VaynerMedia', 'vaynermedia'],
         'email_domains':[],
     },
+    'jelloow': {
+        'source_urls':{
+            'linkedin' : [],
+            'goodfirms' : [],
+            'sortlist' : [],
+            'website' : ['https://www.jelloow.com'],
+        },
+        'aliases' : ['Jelloow', 'jelloow'],
+        'email_domains':[],
+    },
 }
 
 def _AGENCY_INFO():
