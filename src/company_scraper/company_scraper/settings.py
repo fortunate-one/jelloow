@@ -47,7 +47,7 @@ CONCURRENT_REQUESTS = 10
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_TIMEOUT = 180
+DOWNLOAD_TIMEOUT = 15 # used to help broad crawl speed
 # DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
@@ -57,7 +57,7 @@ DOWNLOAD_TIMEOUT = 180
 # AUTOTHROTTLE_DELAY = 1
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -131,3 +131,19 @@ FEED_EXPORT_ENCODING = "utf-8"
 timestamp = datetime.datetime.utcnow().isoformat().replace(':', '-').replace('.', '-')
 LOG_FILE = CURRENT_DIR / f'{timestamp}_{"company_scraper.log"}'
 
+# Used when handling multiple domains in parallel
+SCHEDULER_PRIORITY_QUEUE = "scrapy.pqueues.DownloaderAwarePriorityQueue"
+
+# Used to help DNS resolution
+REACTOR_THREADPOOL_MAXSIZE = 20
+
+# Used to help broad crawl speed
+RETRY_ENABLED = False
+
+# Used to help broad crawl speed
+AJAXCRAWL_ENABLED = True
+
+# Crawl in BF order to help with broad crawl speed and memory usage
+DEPTH_PRIORITY = 1
+SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
+SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"

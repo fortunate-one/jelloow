@@ -180,7 +180,7 @@ class WebsiteSpider(CrawlSpider):
 
     name = 'website'
     rules = (
-        Rule(LinkExtractor(allow=(), unique=True), callback='parse'),
+        Rule(LinkExtractor(allow=(), unique=True), callback='parse_page'),
     )
     agency_name = None
     urls = {}
@@ -197,19 +197,18 @@ class WebsiteSpider(CrawlSpider):
         self.urls = urls
 
         for url in start_urls:
-            yield scrapy.Request(url, callback=self.parse, meta={'allowed_domains': [urlparse(url).netloc]})
+            yield scrapy.Request(url, callback=self.parse_page, meta={'allowed_domains': [urlparse(url).netloc]})
 
-    def parse(self, response: Response):
+    def parse_page(self, response: Response):
 
         if response.url in self.urls:
             self.agency_name = self.urls[response.url]
 
         # Extract text from the current page
         agency = AgencyItem()
-        # TODO: update this to get the name
         agency['name'] = self.agency_name
         agency['url'] = response.url
         agency['source'] = 'website'
-        agency['text'] = ' '.join(response.xpath('//text()').getall())
+        agency['text'] = ' '.join(response.xpath('//body/text()').getall())
 
         yield agency
