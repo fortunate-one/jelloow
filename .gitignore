@@ -1,3 +1,7 @@
+# proxies
+proxies.txt
+
+# for testing
 .env.bak
 
 # Byte-compiled / optimized / DLL files

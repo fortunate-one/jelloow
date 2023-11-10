@@ -1,0 +1,42 @@
+{
+	"folders": [
+		{
+			"path": "../Repos/jelloow"
+		},
+		{
+			"path": "../Repos/jelloow-names"
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"asyncioreactor",
+			"autothrottle",
+			"behaivior",
+			"dotenv",
+			"FINGERPRINTER",
+			"getall",
+			"goodfirms",
+			"HTTPCACHE",
+			"INITDB",
+			"itemadapter",
+			"itemprop",
+			"Jelloow",
+			"Jolien",
+			"NEWSPIDER",
+			"pymongo",
+			"pypi",
+			"pypirc",
+			"referer",
+			"Restli",
+			"ROBOTSTXT",
+			"scrapy",
+			"setdefaulttimeout",
+			"smartsites",
+			"sortlist",
+			"Stijn",
+			"supabase",
+			"TELNETCONSOLE",
+			"webfx"
+		]
+	}
+}
