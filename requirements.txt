@@ -10,3 +10,4 @@ pylint
 phonenumbers
 pycountry
 -e .
+yfinance
