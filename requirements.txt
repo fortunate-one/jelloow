@@ -11,3 +11,5 @@ phonenumbers
 pycountry
 -e .
 yfinance
+google-auth
+google-api-python-client

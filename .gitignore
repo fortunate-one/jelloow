@@ -3,6 +3,7 @@ proxies.txt
 
 # for testing
 .env.bak
+proxies.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
